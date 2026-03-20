@@ -3,7 +3,7 @@ name: Build Windows EXE
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -25,18 +25,15 @@ jobs:
       
       - name: Build EXE with Nuitka
         run: |
-          python -m nuitka --onefile --windows-disable-console             --lto=yes --jobs=4             --output-filename=DiskCleaner             --remove-output             --assume-yes-for-downloads             --include-module=tkinter             --include-module=tkinter.ttk             --include-module=tkinter.filedialog             --include-module=tkinter.messagebox             --standalone             disk_cleaner.py
+          python -m nuitka --onefile --windows-disable-console --standalone --lto=yes --jobs=4 --output-filename=DiskCleaner --remove-output --assume-yes-for-downloads --include-module=tkinter --include-module=tkinter.ttk --include-module=tkinter.filedialog --include-module=tkinter.messagebox disk_cleaner.py
         shell: bash
       
       - name: Check EXE size
         shell: pwsh
         run: |
-           = Get-Item DiskCleaner.exe
-           = [math]::Round(.Length / 1MB, 2)
-          Write-Host EXE Size: MB
-          if ( -gt 10) {
-            Write-Host WARNING: Size is larger than expected! -ForegroundColor Yellow
-          }
+          $file = Get-Item DiskCleaner.exe
+          $sizeMB = [math]::Round($file.Length / 1MB, 2)
+          Write-Host "EXE Size: $sizeMB MB"
       
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
